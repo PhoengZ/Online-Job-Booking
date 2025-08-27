@@ -20,6 +20,10 @@ const CompanySchema = new mongoose.Schema({
         type:String,
         required:[true, 'Please add a province name']
     },
+    liked:{
+        type:[String],
+        default:[]
+    },
     postalcode:{
         type:String,
         required:[true, 'Please add a postal code'],
