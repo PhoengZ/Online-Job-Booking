@@ -33,8 +33,13 @@ const UserSchema = new mongoose.Schema({
     },
     otpEmailExpired:{
         type:Date
+    },
+    isVerify:{
+        type:Boolean,
+        default:false
     }
 })
+
 
 UserSchema.pre('save',async function (){
     const salt = await bcrypt.genSalt(10)

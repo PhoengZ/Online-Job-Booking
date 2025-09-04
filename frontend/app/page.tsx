@@ -1,11 +1,12 @@
 "use client";
-
+import axios from "axios"
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signUpSchema } from "@/lib/schemas";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useState } from "react";
+import { useRouter } from "next/router";
 
 type RegisterFormData = z.infer<typeof signUpSchema>;
 
@@ -19,14 +20,18 @@ export default function Home() {
   } = useForm<RegisterFormData>({
     resolver: zodResolver(signUpSchema),
   });
-
+  const router = useRouter()
   const handleRegister = async (data: RegisterFormData) => {
     setIsSubmitting(true);
-    console.log(data);
-    toast.success("Registered successfully!");
+    const response = axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/register`,{
+      email:data.email,
+      password:data.password
+    })
+    const res = axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/verfiy_email`)
+    toast.success("Navigate to OTP verification");
     setIsSubmitting(false);
+    router.push(`/auth/confirm-otp?email=${data.email}`)
   };
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-cyan-500 via-purple-500 to-orange-500 px-4 py-12">
       <form
