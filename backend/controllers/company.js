@@ -17,6 +17,12 @@ exports.favoriteCompany = async(req,res,next)=>{
                 message: "User not found"
             })
         }
+        if (company.liked.length >= company.maxInterview){
+            return res.status(400).json({
+                success: false,
+                message: "Company has reached max favorite limit"
+            })
+        }
         company.liked.push(user._id)
         company.save()
         res.status(200).json({
