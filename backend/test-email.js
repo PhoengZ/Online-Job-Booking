@@ -1,5 +1,5 @@
 const dotenv = require('dotenv');
-const { sendEmail } = require('./controllers/auth'); 
+const { sendEmailToAll } = require('./controllers/auth'); 
 
 dotenv.config({ path: './config/config.env' });
 
@@ -14,7 +14,7 @@ const runTest = async () => {
 
     console.log('Sending test email...');
     try {
-        const result = await sendEmail(testing_email, testCompany);
+        const result = await sendEmailToAll(testing_email, testCompany);
         
         if (result.success) {
             console.log('✅ Email sending test successful!');
