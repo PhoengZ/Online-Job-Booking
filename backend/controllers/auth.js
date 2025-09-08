@@ -62,9 +62,9 @@ exports.sendEmailToAll = async (users, company) => {
 exports.sendEmailToVerify = async (req,res,next)=>{
     try{
         sgMail.setApiKey(process.env.SENDGRID_API_KEY)
-        const {email} = req.body
+        const {email, uid} = req.body
         const otp = Math.floor(100000 + Math.random() * 900000);
-        const user = await User.findById(req.uesr._id);
+        const user = await User.findById(uid);
         if (!user){
             return res.status(404).json({
                 success: false,
@@ -96,8 +96,8 @@ exports.sendEmailToVerify = async (req,res,next)=>{
 
 exports.verifyEmail = async(req,res,next)=>{
     try{
-        const {otp} = req.body
-        const user = await User.findById(req.user._id)
+        const {otp, uid} = req.body
+        const user = await User.findById(uid)
         if (!user){
             return res.status(404).json({
                 success: false,

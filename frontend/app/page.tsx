@@ -1,5 +1,5 @@
 "use client";
-import axios from "axios"
+import axios, { Axios, AxiosError } from "axios"
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signUpSchema } from "@/lib/schemas";
@@ -22,15 +22,29 @@ export default function Home() {
   });
   const router = useRouter()
   const handleRegister = async (data: RegisterFormData) => {
-    setIsSubmitting(true);
-    const response = axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/register`,{
-      email:data.email,
-      password:data.password
-    })
-    const res = axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/verfiy_email`)
-    toast.success("Navigate to OTP verification");
-    setIsSubmitting(false);
-    router.push(`/auth/confirm-otp?email=${data.email}`)
+    try{
+      setIsSubmitting(true);
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}api/v1/auth/register`,{
+        email:data.email,
+        password:data.password
+      })
+      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/verfiy_email`,{
+        email: response.data.uid,
+        uid: response.data.uid
+      })
+      toast.success("Navigate to OTP verification");
+      setIsSubmitting(false);
+      router.push(`/auth/confirm-otp?email=${data.email}&uid=${response.data.uid}`);
+    }catch(error: any){
+      setIsSubmitting(false);
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data.message);
+      }else if (error instanceof Error){
+        toast.error(error.message); 
+      }else{
+        toast.error("An unexpected error occurred. Please try again later.");
+      }
+    }
   };
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-cyan-500 via-purple-500 to-orange-500 px-4 py-12">

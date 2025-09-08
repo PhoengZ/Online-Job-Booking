@@ -1,10 +1,12 @@
 "use client"
+import axios from 'axios';
 import {CheckCircle2} from 'lucide-react'
 import { useRouter } from 'next/navigation';
 
 export default function signUpSuccess(){
     const router =useRouter()
     const handleGoToLogin = () => {
+        
         router.push('/');
     }
     return (

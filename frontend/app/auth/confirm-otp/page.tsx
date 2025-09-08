@@ -1,4 +1,5 @@
 "use client";
+import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import OtpInput from "react-otp-input";
@@ -7,22 +8,41 @@ import { toast } from "react-toastify";
 export default function confirmOtp({
   searchParams,
 }: {
-  searchParams: { email: string };
+  searchParams: { email: string, uid: string };
 }) {
   const [otp, setOtp] = useState<string>();
   const [error, setError] = useState<String | null>(null);
   const [isLoading, setIsLoading] = useState<Boolean>(false);
   const router = useRouter();
   const email = searchParams.email;
+  const uid = searchParams.uid;
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (otp?.length !== 6) {
-      toast.error("Please enter a valid 6-digit OTP");
-      return;
+    try{
+      if (otp?.length !== 6) {
+        toast.error("Please enter a valid 6-digit OTP");
+        return;
+      }
+      setIsLoading(true);
+      setError(null);
+      await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}api/v1/auth/verify_otp`,{
+        otp: otp,
+        uid: uid
+      })
+      toast.success(`OTP verified successfully! ${otp}`);
+      setIsLoading(false);
+      router.push('/auth/sign-up-success');
+    }catch(error: any){
+      setIsLoading(false);
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data.message);
+      }else if (error instanceof Error){
+        toast.error(error.message); 
+      }else{
+        toast.error("An unexpected error occurred. Please try again later.");
+      }
     }
-    setIsLoading(true);
-    setError(null);
-    toast.success(`OTP verified successfully! ${otp}`);
+    
   };
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-blue-400 via-purple-300 to-blue-400">
