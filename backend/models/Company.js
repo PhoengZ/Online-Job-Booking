@@ -25,6 +25,10 @@ const CompanySchema = new mongoose.Schema({
         ref:'User',
         default:[]
     },
+    maxInterview:{
+        type:Number,
+        required:[true, 'Please add max interview number']
+    },
     postalcode:{
         type:String,
         required:[true, 'Please add a postal code'],
@@ -36,7 +40,7 @@ const CompanySchema = new mongoose.Schema({
     region:{
         type:String,
         required:[true, 'Please add a region']
-    }   
+    }
 },{
     toJSON:{virtuals:true},
     toObject:{virtuals:true}
