@@ -1,9 +1,9 @@
 const mongoose = require('mongoose')
 
-const AppointmentSchema = new mongoose.Schema({
+const BookingSchema = new mongoose.Schema({
     apptDate:{
         type:Date,
-        required:[true, "Please add an appointment date"]
+        required:[true, "Please add an booking date"]
     },
     user:{
         type:mongoose.Schema.ObjectId,
@@ -21,4 +21,4 @@ const AppointmentSchema = new mongoose.Schema({
     }
 })
 
-module.exports = mongoose.model(AppointmentSchema, "Appointment")
+module.exports = mongoose.model("Booking",BookingSchema)

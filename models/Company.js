@@ -48,4 +48,4 @@ CompanySchema.virtual('appointments',{
     justOne:false
 })
 
-module.exports = mongoose.model(CompanySchema, "Company")
+module.exports = mongoose.model("Company" , CompanySchema)
