@@ -10,7 +10,7 @@ exports.getCompanies = async(req,res,next) => {
         if(!companies){
             return res.status(400).json({success : false});
         }
-        res.status(200).json({success:true, data:companies});
+        res.status(200).json({success:true,count : companies.length, data:companies});
     }catch(error){
         res.status(400).json({success : false});
     }
