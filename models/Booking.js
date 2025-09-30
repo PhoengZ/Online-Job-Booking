@@ -1,18 +1,24 @@
 const mongoose = require('mongoose')
 
 const BookingSchema = new mongoose.Schema({
-    apptDate:{
-        type:Date,
-        required:[true, "Please add an booking date"]
-    },
-    user:{
+    userId:{
         type:mongoose.Schema.ObjectId,
         ref:'User',
         required:true
     },
-    company:{
+    companyId:{
         type:mongoose.Schema.ObjectId,
         ref:'Company',
+        required:true
+    },
+    timeslotDate:{
+        type:Date,
+        required:[true, "Please add an booking date"]
+    },
+    status:{
+        type : String,
+        enum : ['confirmed','cancelled','hold'],
+        default : 'confirmed',
         required:true
     },
     createdAt:{

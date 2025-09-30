@@ -23,7 +23,20 @@ const CompanySchema = new mongoose.Schema({
     tel:{
         type:String,
         required:[true, 'Please add a company telephone number']
-    }
+    },
+    timeslots: [
+        {
+            date:Date,
+            capacity:Number,
+            currentBooked:Number
+        }
+    ],
+    liked:{
+        type:[mongoose.Schema.ObjectId],
+        ref:'User',
+        default:[]
+    },
+
 },{
     toJSON:{virtuals:true},
     toObject:{virtuals:true}
