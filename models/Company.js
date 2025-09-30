@@ -3,39 +3,27 @@ const mongoose = require('mongoose')
 const CompanySchema = new mongoose.Schema({
     name:{
         type:String,
-        required:[true, 'Please add a hospital name'],
+        required:[true, 'Please add a company name'],
         unique:true,
         trim:true,
-        maxlength:[50, "Hospital name can't be more than 50 characters"]
+        maxlength:[50, "Company name can't be more than 50 characters"]
     },
     address:{
         type:String,
         required:[true, 'Please add a hospital address']
     },
-    district:{
+    website:{
         type:String,
-        required:[true, 'Please add a district name']
+        required:[true, 'Please add a company website']
     },
-    province:{
+    description:{
         type:String,
-        required:[true, 'Please add a province name']
-    },
-    liked:{
-        type:[String],
-        default:[]
-    },
-    postalcode:{
-        type:String,
-        required:[true, 'Please add a postal code'],
-        maxlength:[5, "Postal code can't be more than 5 digits"]
+        required:[true, 'Please add a description']
     },
     tel:{
         type:String,
-    },
-    region:{
-        type:String,
-        required:[true, 'Please add a region']
-    }   
+        required:[true, 'Please add a company telephone number']
+    }
 },{
     toJSON:{virtuals:true},
     toObject:{virtuals:true}

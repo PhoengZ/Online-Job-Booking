@@ -8,7 +8,6 @@ exports.protect = async (req,res,next) => {
     if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
         token = req.headers.authorization.split(' ')[1]; //get only token by cut 'Bearer'
     };
-
     if(!token){
         return res.status(401).json({success:false, msg:'Not authorize to access this route'});
     };
@@ -16,8 +15,13 @@ exports.protect = async (req,res,next) => {
     try {
         //Verify Token
         const decoded = jwt.verify(token,process.env.JWT_SECRET);
-        console.log(decoded);
-        req.user = await User.findById(decoded.id);
+        req.user = await User.findById(decoded._id);
+        if (!req.user) {
+        return res.status(404).json({
+            success: false,
+            message: 'No user found with this token'
+        });
+        }
         next(); //go to next command 
 
     } catch (error) {
