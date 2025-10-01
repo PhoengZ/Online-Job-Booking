@@ -13,6 +13,10 @@ const UserSchema = new mongoose.Schema({
         required:[true, "Please add an email"],
         unique:true
     },
+    phone:{
+        type:String,
+        required:[true, "Please add a phone number"]
+    },
     password:{
         type:String,
         required: [true, "Please add a password"],
@@ -50,7 +54,7 @@ UserSchema.methods.matchPassword = async function(password){
     return await bcrypt.compare(password, this.password)
 }
 
-UserSchema.methods.genSignedJWTToken = function(){
+UserSchema.methods.getSignedJWTToken = function(){
     return jwt.sign({_id:this._id},process.env.JWT_SECRET,{
         expiresIn:process.env.JWT_EXPIRE
     })

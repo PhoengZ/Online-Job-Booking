@@ -3,44 +3,39 @@ const mongoose = require('mongoose')
 const CompanySchema = new mongoose.Schema({
     name:{
         type:String,
-        required:[true, 'Please add a hospital name'],
+        required:[true, 'Please add a company name'],
         unique:true,
         trim:true,
-        maxlength:[50, "Hospital name can't be more than 50 characters"]
+        maxlength:[50, "Company name can't be more than 50 characters"]
     },
     address:{
         type:String,
         required:[true, 'Please add a hospital address']
     },
-    district:{
+    website:{
         type:String,
-        required:[true, 'Please add a district name']
+        required:[true, 'Please add a company website']
     },
-    province:{
+    description:{
         type:String,
-        required:[true, 'Please add a province name']
+        required:[true, 'Please add a description']
     },
+    tel:{
+        type:String,
+        required:[true, 'Please add a company telephone number']
+    },
+    timeslots: [
+        {
+            date:Date,
+            capacity:Number,
+            currentBooked:Number
+        }
+    ],
     liked:{
         type:[mongoose.Schema.ObjectId],
         ref:'User',
         default:[]
     },
-    maxInterview:{
-        type:Number,
-        required:[true, 'Please add max interview number']
-    },
-    postalcode:{
-        type:String,
-        required:[true, 'Please add a postal code'],
-        maxlength:[5, "Postal code can't be more than 5 digits"]
-    },
-    tel:{
-        type:String,
-    },
-    region:{
-        type:String,
-        required:[true, 'Please add a region']
-    }
 },{
     toJSON:{virtuals:true},
     toObject:{virtuals:true}
@@ -53,4 +48,4 @@ CompanySchema.virtual('appointments',{
     justOne:false
 })
 
-module.exports = mongoose.model("Company",CompanySchema)
+module.exports = mongoose.model("Company" , CompanySchema)
