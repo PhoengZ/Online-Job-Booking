@@ -2,7 +2,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
 const {connectDB} = require('./config/db');
-
+const cors = require('cors')
 dotenv.config({path:'./config/config.env'});
 
 //Connect to DB
@@ -15,7 +15,7 @@ app.use(express.json());
 
 //Cookie Parser
 app.use(cookieParser());
-
+app.use(cors())
 
 //Route File
 const auth = require("./routes/auth");

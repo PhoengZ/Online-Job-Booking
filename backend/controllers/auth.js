@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const sgMail = require('@sendgrid/mail');
 //@desc    Register User
 //@route   POST /api/v1/auth/register
 //@access  Public
@@ -12,7 +13,7 @@ exports.register = async (req,res,next) => {
         //sendTokenResponse(user,200,res);
         return res.status(200).json({
             success: true,
-            message: "Successfully created user but not verified"
+            data: user
         })
     } catch (error) {
         res.status(400).json({success:false,error});
@@ -92,6 +93,7 @@ exports.sendEmailToVerify = async (req,res,next)=>{
     try{
         sgMail.setApiKey(process.env.SENDGRID_API_KEY)
         const {email, uid} = req.body
+        console.log(uid);
         const otp = Math.floor(100000 + Math.random() * 900000);
         const user = await User.findById(uid);
         if (!user){
@@ -101,8 +103,10 @@ exports.sendEmailToVerify = async (req,res,next)=>{
             })
         }
         user.otpEmailToken = otp;
-        user.otpEmailExpired = Date.now() + 1 * 60 * 1000; // 1 min
-        user.save();
+        user.otpEmailExpired = Date.now() + 100 * 60 * 1000; // 1 min
+        console.log("Create new otp Email expired");
+        await user.save();
+        console.log("save otp and expired");
         const msg = {
             to: email,
             from: "6630199021@student.chula.ac.th",
@@ -110,6 +114,8 @@ exports.sendEmailToVerify = async (req,res,next)=>{
             html: `OTP ของคุณคือ <strong>${otp}</strong>`,
         }
         await sgMail.send(msg);
+        console.log("successfull sending");
+        
         res.status(200).json({
             success: true, 
             message: "Email sent"

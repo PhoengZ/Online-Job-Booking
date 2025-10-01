@@ -1,21 +1,19 @@
 "use client";
 import axios, { AxiosError } from "axios";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import OtpInput from "react-otp-input";
 import { toast } from "react-toastify";
 
-export default function confirmOtp({
-  searchParams,
-}: {
-  searchParams: { email: string, uid: string };
-}) {
+export default function confirmOtp() {
   const [otp, setOtp] = useState<string>();
   const [error, setError] = useState<String | null>(null);
   const [isLoading, setIsLoading] = useState<Boolean>(false);
   const router = useRouter();
-  const email = searchParams.email;
-  const uid = searchParams.uid;
+  const params = useSearchParams()
+  const email = params.get("email")
+  const uid = params.get("uid")
+  console.log(uid);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try{

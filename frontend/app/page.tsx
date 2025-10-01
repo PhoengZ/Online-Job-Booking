@@ -6,7 +6,7 @@ import { signUpSchema } from "@/lib/schemas";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useState } from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 type RegisterFormData = z.infer<typeof signUpSchema>;
 
@@ -26,15 +26,17 @@ export default function Home() {
       setIsSubmitting(true);
       const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}api/v1/auth/register`,{
         email:data.email,
-        password:data.password
+        password:data.password,
+        name:data.name,
+        phone:'0777777777'
       })
-      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/sendingOTP`,{
-        email: response.data.uid,
-        uid: response.data.uid
+      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}api/v1/auth/sendingOTP`,{
+        email: response.data.data.email,
+        uid: response.data.data._id
       })
       toast.success("Navigate to OTP verification");
       setIsSubmitting(false);
-      router.push(`/auth/confirm-otp?email=${data.email}&uid=${response.data.uid}`);
+      router.push(`/auth/confirm-otp?email=${data.email}&uid=${response.data.data._id}`);
     }catch(error: any){
       setIsSubmitting(false);
       if (error instanceof AxiosError) {

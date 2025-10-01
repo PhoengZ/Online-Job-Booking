@@ -71,7 +71,7 @@ const sendEmailToAll = async (users, company) => {
     }
 };
 
-export async function handleSlotOpeningNotification(companyId, companyName) {
+exports.handleSlotOpeningNotification = async(companyId, companyName)=>{
     try {
         console.log(`A slot opened for ${companyName}. Checking for interested users...`);
         const [success, favoritingUsers] = await exports.getNameNEmail(companyId);
