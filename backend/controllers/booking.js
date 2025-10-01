@@ -75,8 +75,8 @@ exports.createBooking = async (req,res) => {
 
         //update current book
         slot.currentBooked+=1;
+        // console.log(slot.currentBooked);
         await company.save();
-
         res.status(201).json({ success: true, data: booking });
     }catch(error){
         console.log(error);

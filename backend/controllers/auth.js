@@ -33,7 +33,7 @@ exports.login = async (req,res,next) => {
 
     //Check for user
     const user = await User.findOne({email}).select('+password');
-    if(!user){
+    if(!user || !user.isVerify){
         return res.status(400).json({success:false, msg:'Invalid credentials'});
     }
 
