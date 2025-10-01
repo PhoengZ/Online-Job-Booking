@@ -134,58 +134,80 @@ exports.editBooking = async (req, res) => {
         if (!booking) {
             return res.status(404).json({ success: false, message: "Booking not found" });
         }
+
+        //if booking status cancelled -> cannot edit booking
+        if(booking.status === "cancelled" && req.user.role === "user"){
+            return res.status(400).json({success:false , message : "This booking is cancelled"});
+        }
+
         // Only owner or admin can edit
         if (booking.userId.toString() !== req.user._id.toString() && req.user.role !== "admin") {
             return res.status(403).json({ success: false, message: "You cannot edit this booking" });
         }
-        // Only allow editing timeslotDate
-        const { timeslotDate } = req.body;
-        if (!timeslotDate) {
-            return res.status(400).json({ success: false, message: "No new timeslot provided" });
-        }
-        const newDate = new Date(timeslotDate);
+        const { timeslotDate, status } = req.body;
 
-        // Check for duplicate booking at new timeslot
-        const duplicate = await Booking.findOne({
-            userId: booking.userId,
-            timeslotDate: newDate,
-            status: "confirmed",
-            _id: { $ne: booking._id }
-        });
-        if (duplicate) {
-            return res.status(400).json({ success: false, message: "You already have a booking at this time." });
-        }
-
-        // Find company and new slot
-        const company = await Company.findById(booking.companyId);
-        if (!company) {
-            return res.status(404).json({ success: false, message: "Company not found" });
-        }
-        const newSlot = company.timeslots.find(
-            s => new Date(s.date).toISOString() === newDate.toISOString()
-        );
-        if (!newSlot) {
-            return res.status(404).json({ success: false, message: "Timeslot not found" });
-        }
-        if (newSlot.currentBooked >= newSlot.capacity) {
-            return res.status(409).json({ success: false, message: "This timeslot is full." });
+        // Only admin can edit status
+        if (status && req.user.role === "admin") {
+            if (status === "confirmed") {
+                const confirmedCount = await Booking.countDocuments({
+                    userId: booking.userId,
+                    status: "confirmed",
+                    _id: { $ne: booking._id } // exclude this booking if it's being updated from another status
+                });
+                if (confirmedCount >= 3) {
+                    return res.status(400).json({ success: false, message: "This user already has 3 confirmed bookings." });
+                }
+            }
+            booking.status = status;
         }
 
-        // Update old slot's currentBooked
-        const oldSlot = company.timeslots.find(
-            s => new Date(s.date).toISOString() === booking.timeslotDate.toISOString()
-        );
-        if (oldSlot && oldSlot.currentBooked > 0) {
-            oldSlot.currentBooked -= 1;
+        // Only allow editing timeslotDate for all
+        if (timeslotDate) {
+            const newDate = new Date(timeslotDate);
+
+            // Check for duplicate booking at new timeslot
+            const duplicate = await Booking.findOne({
+                userId: booking.userId,
+                timeslotDate: newDate,
+                status: "confirmed",
+                _id: { $ne: booking._id }
+            });
+            if (duplicate) {
+                return res.status(400).json({ success: false, message: "You already have a booking at this time." });
+            }
+
+            // Find company and new slot
+            const company = await Company.findById(booking.companyId);
+            if (!company) {
+                return res.status(404).json({ success: false, message: "Company not found" });
+            }
+            const newSlot = company.timeslots.find(
+                s => new Date(s.date).toISOString() === newDate.toISOString()
+            );
+            if (!newSlot) {
+                return res.status(404).json({ success: false, message: "Timeslot not found" });
+            }
+            if (newSlot.currentBooked >= newSlot.capacity) {
+                return res.status(409).json({ success: false, message: "This timeslot is full." });
+            }
+
+            // Update old slot's currentBooked
+            const oldSlot = company.timeslots.find(
+                s => new Date(s.date).toISOString() === booking.timeslotDate.toISOString()
+            );
+            if (oldSlot && oldSlot.currentBooked > 0) {
+                oldSlot.currentBooked -= 1;
+            }
+
+            // Update new slot's currentBooked
+            newSlot.currentBooked += 1;
+
+            // Update booking
+            booking.timeslotDate = newDate;
+            await company.save();
         }
 
-        // Update new slot's currentBooked
-        newSlot.currentBooked += 1;
-
-        // Update booking
-        booking.timeslotDate = newDate;
         await booking.save();
-        await company.save();
 
         res.status(200).json({ success: true, data: booking });
     } catch (error) {
