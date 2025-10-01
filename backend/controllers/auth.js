@@ -9,7 +9,11 @@ exports.register = async (req,res,next) => {
         //Create User
         const user = await User.create({name,email,phone,password,role});
         //Create Token and sent to cookie by call function
-        sendTokenResponse(user,200,res);
+        //sendTokenResponse(user,200,res);
+        return res.status(200).json({
+            success: true,
+            message: "Successfully created user but not verified"
+        })
     } catch (error) {
         res.status(400).json({success:false,error});
         console.log(error.stack);
