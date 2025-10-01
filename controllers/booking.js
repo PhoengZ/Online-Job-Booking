@@ -9,31 +9,38 @@ exports.createBooking = async (req,res) => {
         const {companyId,timeslotDate} = req.body;
         const userId = req.user._id;
         const date = new Date(timeslotDate);
-        //Check Date
-        const start = new Date("2022-05-10T00:00:00Z");
-        const end = new Date("2022-05-13T23:59:59Z");
-        //if not in range
-        if (date < start || date > end) {
-            return res.status(400).json({ msg: "Date must be between May 10-13, 2022" });
-        }
-
         //check booking confirmed(<= 3)
         const count = await Booking.countDocuments({
-            user : userId,
+            userId,
             status : "confirmed"
         })
         if(count >= 3){
             return res.status(400).json({success:false,message:"You can only book up to 3 sessions"});
         }
 
-         // Check if already booked this company + timeslot
+        //Check if booked duplicate time and date
+        const duplicateDateTime = await Booking.findOne({
+            userId,
+            timeslotDate: date,
+            status: "confirmed"
+        });
+        if (duplicateDateTime) {
+            return res.status(400).json({
+                success: false,
+                message: "You already have a booking at this time."
+            });
+        }
+
+
+         // Check if already booked this company
         const duplicate = await Booking.findOne({
             userId,
             companyId,
-            status: "confirmed"
+            status : "confirmed"
         });
+        //user can book 1 book per company
         if(duplicate){
-            return res.status(400).json({success:false,message:"You already booked this company and timeslot"});
+            return res.status(400).json({success:false,message:"You already booked this company"});
         }
 
         //Check timeslot capacity
@@ -50,13 +57,7 @@ exports.createBooking = async (req,res) => {
             return res.status(404).json({success:false,message:"Timeslot not found"});
         }
 
-        const bookedCount = await Booking.countDocuments({
-            companyId,
-            timeslotDate : date,
-            status: "confirmed"
-        });
-
-        if (bookedCount >= slot.capacity) {
+        if (slot.currentBooked >= slot.capacity) {
             // it full
             return res.status(409).json({
                 message: "This timeslot is full. You can like the company to wait for a slot.",
@@ -72,7 +73,7 @@ exports.createBooking = async (req,res) => {
         });
 
         //update current book
-        slot.currentBooked = bookedCount + 1;
+        slot.currentBooked+=1;
         await company.save();
 
         res.status(201).json({ success: true, data: booking });
@@ -91,25 +92,27 @@ exports.cancelBooking = async (req,res) => {
         if(!booking){
             res.status(404).json({success: false , message:"Booking not found"});
         }
+        if(booking.status === "cancelled"){
+            return res.status(400).json({success:false,message:"You already cancelled this company and timeslot"});
+        }
 
         booking.status = "cancelled";
         await booking.save();
-
         
-    // update currentBooked
-    const company = await Company.findById(booking.company);
-    const slot = company.timeslots.find(
-      s => s.date.getTime() === booking.timeslot.date.getTime()
-    );
-    if (slot && slot.currentBooked > 0) {
-      slot.currentBooked -= 1;
-      await company.save();
-    }
+        // update currentBooked
+        const company = await Company.findById(booking.companyId);
+        const slot = company.timeslots.find(
+        s => s.date.getTime() === booking.timeslotDate
+        );
+        if (slot && slot.currentBooked > 0) {
+        slot.currentBooked -= 1;
+        await company.save();
+        }
 
-    // notification user that like this company
-    //........
+        // notification user that like this company
+        //........
 
-    res.status(200).json({ success: true, message: "Booking cancelled" });
+        res.status(200).json({ success: true, message: "Booking cancelled" });
 
     }catch(error){
         console.log(error);
