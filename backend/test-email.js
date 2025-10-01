@@ -1,5 +1,5 @@
 const dotenv = require('dotenv');
-const { sendEmailToAll } = require('./controllers/auth'); 
+const { sendEmailToAll } = require('./services/utils'); 
 
 dotenv.config({ path: './config/config.env' });
 

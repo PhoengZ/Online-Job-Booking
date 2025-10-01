@@ -31,11 +31,11 @@ const CompanySchema = new mongoose.Schema({
             currentBooked:Number
         }
     ],
-    liked:{
-        type:[mongoose.Schema.ObjectId],
-        ref:'User',
-        default:[]
-    },
+    // liked:{
+    //     type:[mongoose.Schema.ObjectId],
+    //     ref:'User',
+    //     default:[]
+    // },
 },{
     toJSON:{virtuals:true},
     toObject:{virtuals:true}

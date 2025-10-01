@@ -28,7 +28,7 @@ export default function Home() {
         email:data.email,
         password:data.password
       })
-      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/verfiy_email`,{
+      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/sendingOTP`,{
         email: response.data.uid,
         uid: response.data.uid
       })

@@ -1,6 +1,4 @@
 const User = require('../models/User');
-const sgMail = require('@sendgrid/mail');
-const { GoogleGenAI, Type } = require('@google/genai')
 //@desc    Register User
 //@route   POST /api/v1/auth/register
 //@access  Public
@@ -86,65 +84,6 @@ exports.getMe = async (req,res,next) =>{
     res.status(200).json({success:true, data:user})
 }
 
-
-exports.sendEmailToAll = async (users, company) => {
-    try {
-        const ai = new GoogleGenAI({apiKey: process.env.GEMINI_API_KEY})
-        const response = await ai.models.generateContent({
-            model:'gemini-2.5-flash',
-            contents:`Write a short email to inform a user that a company they are interested in has an opening. The email should be polite and encouraging. Here is an example:
-            Subject: Company ${company} has an opening!
-            Text: The company ${company} you are interested in has an opening. Hurry up and apply now!
-            Html: Dear [User's Name], we are excited to inform you that the company ${company} you are interested in has an opening. Hurry up and apply now!
-            Now, please generate a similar email but make it more creative and engaging.`,
-            config:{
-                responseMimeType: "application/json",
-                responseSchema:{
-                    type: Type.OBJECT,
-                    properties:{
-                        Subject:{
-                            type: Type.STRING,
-                            description: "The subject of the email"
-                        },
-                        Text:{
-                            type: Type.STRING,
-                            description: "The body text of the email"
-                        },
-                        Html:{
-                            type: Type.STRING,
-                            description: "The HTML content of the email"
-                        }
-                    },
-                    propertyOrdering: ["Subject", "Text", "Html"]
-                },
-                candidateCount: 1
-            }
-        })
-        const emailContent = JSON.parse(response.text)
-        sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-        const msg = users.map(user=>({
-            to: user.email,
-            from: "6630199021@student.chula.ac.th",
-            subject: emailContent.Subject.replace("[Company Name]", company),
-            text: emailContent.Text.replace("[User's Name]", user.name).replace("[Company Name]", company),
-            html: emailContent.Html.replace("[User's Name]", user.name).replace("[Company Name]", company),
-        }));
-        await sgMail.send(msg);
-
-        return {
-            success: true,
-            message: "All emails have been sent successfully."
-        };
-
-    } catch (err) {
-        console.error('Error sending email:', err);
-        return {
-            success: false,
-            message: err.message
-        };
-    }
-};
-
 exports.sendEmailToVerify = async (req,res,next)=>{
     try{
         sgMail.setApiKey(process.env.SENDGRID_API_KEY)
@@ -218,3 +157,4 @@ exports.verifyEmail = async(req,res,next)=>{
         
     }
 }
+
