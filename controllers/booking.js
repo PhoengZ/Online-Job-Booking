@@ -96,6 +96,11 @@ exports.cancelBooking = async (req,res) => {
             return res.status(400).json({success:false,message:"You already cancelled this company and timeslot"});
         }
 
+        if (booking.userId.toString() !== req.user._id.toString()) {
+            if (req.user.role === "user") {
+                return res.status(400).json({ success: false, message: "You cannot access this booking" });
+            }
+        }
         booking.status = "cancelled";
         await booking.save();
         
