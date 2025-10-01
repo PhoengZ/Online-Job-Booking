@@ -125,28 +125,6 @@ exports.cancelBooking = async (req,res) => {
     }
 };
 
-//@desc    View Own Booking
-//@route   GET /api/v1/booking
-//@access  Public
-exports.getBookings = async (req,res) => {
-    try{
-        let bookings;
-        
-        //if admin show all booking
-        if(req.user.role === 'admin'){
-            bookings = await Booking.find();
-        }
-        //if user show own booking
-        else{
-            bookings = await Booking.find({userId : req.user._id}).populate('companyId','name');
-        }
-
-        res.status(200).json({success:true,count : bookings.length , data : bookings});
-    }catch(error){
-        res.status(400).json({success:false})
-    }
-}
-
 //@desc    Edit Own Booking
 //@route   PUT /api/v1/booking/:id
 //@access  Public
@@ -215,3 +193,45 @@ exports.editBooking = async (req, res) => {
         res.status(500).json({ message: "Server Error" });
     }
 };
+
+//@desc    View Own Booking
+//@route   GET /api/v1/booking
+//@access  Public
+exports.getBookings = async (req,res) => {
+    try{
+        let bookings;
+        
+        //if admin show all booking
+        if(req.user.role === 'admin'){
+            bookings = await Booking.find();
+        }
+        //if user show own booking
+        else{
+            bookings = await Booking.find({userId : req.user._id}).populate('companyId','name');
+        }
+
+        res.status(200).json({success:true,count : bookings.length , data : bookings});
+    }catch(error){
+        console.log(error);
+        res.status(500).json({ message: "Server Error" });
+    }
+}
+
+//@desc    View each Booking (only admin)
+//@route   GET /api/v1/booking/:id
+//@access  Public
+exports.getBooking = async (req,res) => {
+    try{
+        if(req.user.role === "user"){
+            return res.status(403).json({ success: false, message: "You cannot access this route" });
+        }
+        const booking = await Booking.findById(req.params.id);
+        if (!booking) {
+            return res.status(404).json({ success: false, message: "Booking not found" });
+        }
+        res.status(200).json({ success: true, data: booking });
+    }catch(error){
+        console.log(error);
+        res.status(500).json({ message: "Server Error" });
+    }
+}
