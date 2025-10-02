@@ -21,7 +21,6 @@ app.use(cors())
 const auth = require("./routes/auth");
 const booking = require("./routes/booking");
 const company = require("./routes/company");
-const favoirting = require('./routes/favoriting')
 
 app.use('/api/v1/auth',auth);
 app.use('/api/v1/booking',booking);

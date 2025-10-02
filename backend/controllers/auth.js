@@ -45,7 +45,6 @@ exports.login = async (req,res,next) => {
 
     //Create Token and sent to cookie by call function
     sendTokenResponse(user,200,res);
-
 };
 
 

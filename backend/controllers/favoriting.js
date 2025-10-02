@@ -6,9 +6,10 @@ const Company = require("../models/Company")
 //@access  private
 exports.likeCompany = async(req,res,next) => {
     try{
-        const {cid} = req.params;
+        const params = req.params;
+        const cid = params.cid
         const userId = req.user._id;
-
+        console.log(params);
         const company = await Company.findById(cid);
         if(!company){
             return res.status(404).json({success:false,message:"Company not found"});
@@ -54,5 +55,4 @@ exports.unlikeCompany = async (req,res,next) => {
             success: false, message: "Something wrong"
         })
     }
-
 };
