@@ -16,8 +16,8 @@ exports.register = async (req,res,next) => {
             data: user
         })
     } catch (error) {
-        res.status(400).json({success:false,error});
-        console.log(error.stack);
+        console.log(error);
+        res.status(500).json({message:"Server Error"});
     }
 };
 
