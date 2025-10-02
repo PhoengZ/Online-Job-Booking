@@ -93,7 +93,6 @@ const sendTokenResponse = (user , statusCode , res) => {
 //@access  Private
 exports.getMe = async (req,res,next) =>{
     const user = await User.findById(req.user.id);
-    console.log(req.user.id)
     if(!user){
         res.status(404).json({success:false,error})
     }
