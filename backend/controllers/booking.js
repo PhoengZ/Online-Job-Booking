@@ -72,9 +72,8 @@ exports.createBooking = async (req,res) => {
             timeslotDate : date,
             status : "confirmed"
         });
-
         //update current book
-        slot.currentBooked+=1;
+        slot.currentBooked++;
         // console.log(slot.currentBooked);
         await company.save();
         res.status(201).json({ success: true, data: booking });
