@@ -1,5 +1,4 @@
 const Company = require('../models/Company');
-const User = require('../models/User');
 
 //@desc    get all company
 //@route   GET /api/v1/companies
@@ -50,47 +49,47 @@ exports.deleteCompany = async(req,res,next) => {
 //@desc    Like Company
 //@route   PUT /api/v1/companies/:id/like
 //@access  Public
-exports.likeCompany = async(req,res,next) => {
-    try{
-        const {companyId} = req.params;
-        const userId = req.user._id;
+// exports.likeCompany = async(req,res,next) => {
+//     try{
+//         const {companyId} = req.params;
+//         const userId = req.user._id;
 
-        const company = await Company.findById(companyId);
-        if(!company){
-            return res.status(404).json({success:false,message:"Company not found"});
-        }
+//         const company = await Company.findById(companyId);
+//         if(!company){
+//             return res.status(404).json({success:false,message:"Company not found"});
+//         }
 
-        //If repeat
-        if(company.liked.includes(userId)){
-            return res.status(400).json({success:false,message:"You already liked this company"});
-        }
+//         //If repeat
+//         if(company.liked.includes(userId)){
+//             return res.status(400).json({success:false,message:"You already liked this company"});
+//         }
 
-        company.liked.push(userId);
-        await company.save();
+//         company.liked.push(userId);
+//         await company.save();
 
-        res.status(200).json({success:true,message:`Liked ${company.name} successfully`})
-    }catch(error){
-        res.status(400).json({success : false});
-    }
-}
+//         res.status(200).json({success:true,message:`Liked ${company.name} successfully`})
+//     }catch(error){
+//         res.status(400).json({success : false});
+//     }
+// }
 
-//@desc    Unlike Company
-//@route   PUT /api/v1/companies/:id/unlike
-//@access  Public
-exports.unlikeCompany = async (req,res,next) => {
-    const companyId = req.params.id;
-    const userId = req.params.user.id;
+// //@desc    Unlike Company
+// //@route   PUT /api/v1/companies/:id/unlike
+// //@access  Public
+// exports.unlikeCompany = async (req,res,next) => {
+//     const companyId = req.params.id;
+//     const userId = req.params.user.id;
 
-    const company = Company.findById(companyId);
-    if(!company){
-        return res.status(404).json({success:false,message:"Company not found"});
-    }
+//     const company = Company.findById(companyId);
+//     if(!company){
+//         return res.status(404).json({success:false,message:"Company not found"});
+//     }
 
-    //delete userid in liked
-    company.liked = company.liked.filter(id => id.toString() !== userId.toString());
-    await company.save();
+//     //delete userid in liked
+//     company.liked = company.liked.filter(id => id.toString() !== userId.toString());
+//     await company.save();
 
-    res.status(200).json({ success: true, message:`Unlike ${company.name} successfully` });
+//     res.status(200).json({ success: true, message:`Unlike ${company.name} successfully` });
 
 
-};
+// };

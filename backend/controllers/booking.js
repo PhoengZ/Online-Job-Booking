@@ -1,5 +1,6 @@
 const Booking = require('../models/Booking');
 const Company = require('../models/Company');
+const { handleSlotOpeningNotification } = require('../services/utils');
 
 //@desc    Create Booking
 //@route   POST /api/v1/booking
@@ -74,8 +75,8 @@ exports.createBooking = async (req,res) => {
 
         //update current book
         slot.currentBooked+=1;
+        // console.log(slot.currentBooked);
         await company.save();
-
         res.status(201).json({ success: true, data: booking });
     }catch(error){
         console.log(error);
@@ -107,16 +108,20 @@ exports.cancelBooking = async (req,res) => {
         // update currentBooked
         const company = await Company.findById(booking.companyId);
         const slot = company.timeslots.find(
-        s => s.date.getTime() === booking.timeslotDate
+            s => s.date.getTime() === booking.timeslotDate
         );
-        if (slot && slot.currentBooked > 0) {
-        slot.currentBooked -= 1;
-        await company.save();
+        console.log(slot);
+        if (slot) {
+            if (slot.currentBooked > 0){
+                slot.currentBooked -= 1;
+                await company.save();
+            }
+            const wasSlotFull = slot.currentBooked <= (slot.maxCapacity * 0.9);
+            if (!wasSlotFull){
+                // Dont use await for make below line do on background
+                handleSlotOpeningNotification(company._id, company.name);
+            }
         }
-
-        // notification user that like this company
-        //........
-
         res.status(200).json({ success: true, message: "Booking cancelled" });
 
     }catch(error){

@@ -37,12 +37,26 @@ const UserSchema = new mongoose.Schema({
     },
     otpEmailExpired:{
         type:Date
+    },
+    isVerify:{
+        type:Boolean,
+        default:false
     }
 })
 
+
 UserSchema.pre('save',async function (){
-    const salt = await bcrypt.genSalt(10)
-    this.password = await bcrypt.hash(this.password,salt)
+    if (!this.isModified('password')) {
+        return 
+    }
+    try {
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, salt);
+    } catch (error) {
+        next(error);
+    }
+    // const salt = await bcrypt.genSalt(10)
+    // this.password = await bcrypt.hash(this.password,salt)
 })
 
 UserSchema.methods.matchPassword = async function(password){

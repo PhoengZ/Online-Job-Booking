@@ -2,6 +2,9 @@ const express = require('express');
 const {getCompanies,addCompany,deleteCompany} = require('../controllers/company');
 const {protect,authorize} = require('../middleware/auth');
 const router = express.Router();
+const favortie = require('./favoriting') 
+
+router.use('/:cid/favoriting',favortie)
 
 router.route('/')
     .get(protect,authorize('user','admin'),getCompanies)
