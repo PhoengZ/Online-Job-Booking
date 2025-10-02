@@ -3,7 +3,7 @@ const {register,login,logout,getMe, sendEmailToVerify, verifyEmail} = require('.
 const { protect } = require('../middleware/auth');
 const router = express.Router();
 
-router.get('/getMe',protect,getMe);
+router.get('/me',protect,getMe);
 router.post('/login',login);
 router.post('/register',register);
 router.post('/logout',logout);
