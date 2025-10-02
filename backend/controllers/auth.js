@@ -7,6 +7,14 @@ exports.register = async (req,res,next) => {
     try {
         const {name,email,phone,password,role} = req.body;
 
+        // check email duplicate
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({
+                success: false,
+                message: "This email is already in use."
+            });
+        }
         //Create User
         const user = await User.create({name,email,phone,password,role});
         //Create Token and sent to cookie by call function
