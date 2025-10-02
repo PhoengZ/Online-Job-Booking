@@ -108,14 +108,15 @@ exports.cancelBooking = async (req,res) => {
         // update currentBooked
         const company = await Company.findById(booking.companyId);
         const slot = company.timeslots.find(
-        s => s.date.getTime() === booking.timeslotDate
+            s => s.date.getTime() === booking.timeslotDate
         );
+        console.log(slot);
         if (slot) {
             if (slot.currentBooked > 0){
                 slot.currentBooked -= 1;
                 await company.save();
             }
-            const wasSlotFull = slot.currentBooked >= (slot.maxCapacity * 0.9);
+            const wasSlotFull = slot.currentBooked <= (slot.maxCapacity * 0.9);
             if (!wasSlotFull){
                 // Dont use await for make below line do on background
                 handleSlotOpeningNotification(company._id, company.name);
