@@ -108,9 +108,8 @@ exports.cancelBooking = async (req,res) => {
         // update currentBooked
         const company = await Company.findById(booking.companyId);
         const slot = company.timeslots.find(
-            s => s.date.getTime() === booking.timeslotDate
+            s => s.date.getTime() === new Date(booking.timeslotDate).getTime()
         );
-        console.log(slot);
         if (slot) {
             if (slot.currentBooked > 0){
                 slot.currentBooked -= 1;
