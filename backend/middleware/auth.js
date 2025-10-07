@@ -8,7 +8,7 @@ exports.protect = async (req,res,next) => {
     if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
         token = req.headers.authorization.split(' ')[1]; //get only token by cut 'Bearer'
     };
-    if(!token){
+    if(!token || token == 'null'){
         return res.status(401).json({success:false, msg:'Not authorize to access this route'});
     };
 

@@ -4,9 +4,9 @@ const { protect } = require('../middleware/auth');
 const router = express.Router();
 
 router.get('/me',protect,getMe);
+router.get('/logout',logout);
 router.post('/login',login);
 router.post('/register',register);
-router.post('/logout',logout);
 router.post('/sendingOTP', sendEmailToVerify)
 router.put('/verify_otp', verifyEmail)
 
