@@ -47,6 +47,12 @@ const sendEmailToAll = async (users, company) => {
             }
         })
         const emailContent = JSON.parse(response.text)
+        if (!process.env.BREVO_API_KEY){
+            throw new Error('BREVO_API_KEY environment variable is not configured');
+        }
+        if (!process.env.SENDER_EMAIL){
+            throw new Error('SENDER_EMAIL environment variable is not configured');
+        }   
         let apiInstance = new brevo.TransactionalEmailsApi();
         let apikey = apiInstance.authentications['apiKey'];
         apikey.apiKey = process.env.BREVO_API_KEY;
