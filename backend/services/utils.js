@@ -47,6 +47,9 @@ const sendEmailToAll = async (users, company) => {
             }
         })
         const emailContent = JSON.parse(response.text)
+        let apiInstance = new brevo.TransactionalEmailsApi();
+        let apikey = apiInstance.authentications['apiKey'];
+        apikey.apiKey = process.env.BREVO_API_KEY;
         const messageVersions = users.map(user => {
             const personalizedHtml = emailContent.Html
                 .replace("[User's Name]", user.name)
@@ -62,7 +65,7 @@ const sendEmailToAll = async (users, company) => {
             };
         });
         let sendEmailSmtp = new brevo.SendSmtpEmail();
-        sendEmailSmtp.sender = { "name": "Booking App", "email": "6630199021@student.chula.ac.th" };
+        sendEmailSmtp.sender = { "name": "Booking App", "email": process.env.SENDER_EMAIL};
         sendEmailSmtp.messageVersions = messageVersions;
         await apiInstance.sendTransacEmail(sendEmailSmtp);
         return {
