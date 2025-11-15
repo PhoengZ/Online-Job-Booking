@@ -119,7 +119,7 @@ exports.sendEmailToVerify = async (req, res, next) => {
         let sendSmtpEmail = new brevo.SendSmtpEmail();
         sendSmtpEmail.subject = `ยืนยันอีเมล ${email} OTP ของคุณ`;
         sendSmtpEmail.htmlContent = `OTP ของคุณคือ <strong>${otp}</strong>`;
-        sendSmtpEmail.sender = { "name": "Booking App", "email": "6630199021@student.chula.ac.th" }; // ต้องเป็นเมลที่ Verify ใน Brevo แล้ว
+        sendSmtpEmail.sender = { "name": "Booking App", "email": process.env.SENDER_EMAIL }; // ต้องเป็นเมลที่ Verify ใน Brevo แล้ว
         sendSmtpEmail.to = [{ "email": email }];
         await apiInstance.sendTransacEmail(sendSmtpEmail);
         console.log("successfull sending with Brevo");
