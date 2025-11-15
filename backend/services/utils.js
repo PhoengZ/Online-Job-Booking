@@ -1,4 +1,4 @@
-const sgMail = require('@sendgrid/mail');
+const brevo = require('@getbrevo/brevo');
 const { GoogleGenAI, Type } = require('@google/genai');
 const Favorite = require('../models/Favorite');
 
@@ -47,16 +47,19 @@ const sendEmailToAll = async (users, company) => {
             }
         })
         const emailContent = JSON.parse(response.text)
-        sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-        const msg = users.map(user=>({
-            to: user.email,
-            from: "6630199021@student.chula.ac.th",
-            subject: emailContent.Subject.replace("[Company Name]", company),
-            text: emailContent.Text.replace("[User's Name]", user.name).replace("[Company Name]", company),
-            html: emailContent.Html.replace("[User's Name]", user.name).replace("[Company Name]", company),
-        }));
-        await sgMail.send(msg);
-
+        let apiInstance = new brevo.TransactionalEmailsApi()
+        let apikey = apiInstance.authentications['apiKey'];
+        const subject = emailContent.Subject.replace("[Company Name]", company)
+        const html = emailContent.Html.replace("[User's Name]", user.name).replace("[Company Name]", company)
+        apikey.apiKey = process.env.BREVO_API_KEY
+        let sendEmailSmtp = new brevo.SendSmtpEmail()
+        sendEmailSmtp.subject = subject
+        sendEmailSmtp.htmlContent = html;
+        sendEmailSmtp.sender = { "name": "Booking App", "email": "6630199021@student.chula.ac.th" };
+        for(let i = 0;i<users.length;i++){
+            sendEmailSmtp.to = users[i].email
+            await apiInstance.sendTransacEmail(sendEmailSmtp);
+        }
         return {
             success: true,
             message: "All emails have been sent successfully."

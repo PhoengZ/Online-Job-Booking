@@ -1,5 +1,5 @@
 const User = require('../models/User');
-const sgMail = require('@sendgrid/mail');
+const brevo = require("@getbrevo/brevo")
 //@desc    Register User
 //@route   POST /api/v1/auth/register
 //@access  Public
@@ -99,45 +99,46 @@ exports.getMe = async (req,res,next) =>{
     res.status(200).json({success:true, data:user})
 }
 
-exports.sendEmailToVerify = async (req,res,next)=>{
-    try{
-        sgMail.setApiKey(process.env.SENDGRID_API_KEY)
-        const {email, uid} = req.body
-        console.log(uid);
+exports.sendEmailToVerify = async (req, res, next) => {
+    try {
+        const { email, uid } = req.body;
+        
         const otp = Math.floor(100000 + Math.random() * 900000);
         const user = await User.findById(uid);
-        if (!user){
-            return res.status(404).json({
-                success: false,
-                message: "User not found"
-            })
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
         }
-        user.otpEmailToken = otp;
-        user.otpEmailExpired = Date.now() + 100 * 60 * 1000; // 1 min
-        console.log("Create new otp Email expired");
-        await user.save();
-        console.log("save otp and expired");
-        const msg = {
-            to: email,
-            from: "6630199021@student.chula.ac.th",
-            subject: `ยืนยันอีเมล ${email} OTP ของคุณ`,
-            html: `OTP ของคุณคือ <strong>${otp}</strong>`,
-        }
-        await sgMail.send(msg);
-        console.log("successfull sending");
         
+        user.otpEmailToken = otp;
+        user.otpEmailExpired = Date.now() + 10 * 60 * 1000; 
+        await user.save();
+
+        let apiInstance = new brevo.TransactionalEmailsApi();
+        let apiKey = apiInstance.authentications['apiKey'];
+        apiKey.apiKey = process.env.BREVO_API_KEY;
+        let sendSmtpEmail = new brevo.SendSmtpEmail();
+        sendSmtpEmail.subject = `ยืนยันอีเมล ${email} OTP ของคุณ`;
+        sendSmtpEmail.htmlContent = `OTP ของคุณคือ <strong>${otp}</strong>`;
+        sendSmtpEmail.sender = { "name": "Booking App", "email": "6630199021@student.chula.ac.th" }; // ต้องเป็นเมลที่ Verify ใน Brevo แล้ว
+        sendSmtpEmail.to = [{ "email": email }];
+        await apiInstance.sendTransacEmail(sendSmtpEmail);
+        console.log("successfull sending with Brevo");
+
         res.status(200).json({
-            success: true, 
+            success: true,
             message: "Email sent"
-        })
-    }catch(err){
+        });
+
+    } catch (err) {
         console.error('Error sending email:', err);
+        if(err.body) console.error(err.body); 
+
         return res.status(500).json({
             success: false,
             message: "Something went wrong"
-        })
+        });
     }
-}
+};
 
 exports.verifyEmail = async(req,res,next)=>{
     try{
