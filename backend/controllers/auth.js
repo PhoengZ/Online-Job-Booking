@@ -1,3 +1,4 @@
+const { response } = require('express');
 const User = require('../models/User');
 const brevo = require("@getbrevo/brevo")
 //@desc    Register User
@@ -112,7 +113,12 @@ exports.sendEmailToVerify = async (req, res, next) => {
         user.otpEmailToken = otp;
         user.otpEmailExpired = Date.now() + 10 * 60 * 1000; 
         await user.save();
-
+        if (!process.env.BREVO_API_KEY){
+            throw new Error('BREVO_API_KEY environment variable is not configured');
+        }
+        if (!process.env.SENDER_EMAIL){
+            throw new Error('SENDER_EMAIL environment variable is not configured');
+        }            
         let apiInstance = new brevo.TransactionalEmailsApi();
         let apiKey = apiInstance.authentications['apiKey'];
         apiKey.apiKey = process.env.BREVO_API_KEY;
