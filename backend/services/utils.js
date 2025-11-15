@@ -47,19 +47,24 @@ const sendEmailToAll = async (users, company) => {
             }
         })
         const emailContent = JSON.parse(response.text)
-        let apiInstance = new brevo.TransactionalEmailsApi()
-        let apikey = apiInstance.authentications['apiKey'];
-        const subject = emailContent.Subject.replace("[Company Name]", company)
-        const html = emailContent.Html.replace("[User's Name]", user.name).replace("[Company Name]", company)
-        apikey.apiKey = process.env.BREVO_API_KEY
-        let sendEmailSmtp = new brevo.SendSmtpEmail()
-        sendEmailSmtp.subject = subject
-        sendEmailSmtp.htmlContent = html;
+        const messageVersions = users.map(user => {
+            const personalizedHtml = emailContent.Html
+                .replace("[User's Name]", user.name)
+                .replace("[Company Name]", company);
+            
+            const personalizedSubject = emailContent.Subject
+                .replace("[Company Name]", company);
+
+            return {
+                to: [{ email: user.email, name: user.name }],
+                htmlContent: personalizedHtml, 
+                subject: personalizedSubject
+            };
+        });
+        let sendEmailSmtp = new brevo.SendSmtpEmail();
         sendEmailSmtp.sender = { "name": "Booking App", "email": "6630199021@student.chula.ac.th" };
-        for(let i = 0;i<users.length;i++){
-            sendEmailSmtp.to = users[i].email
-            await apiInstance.sendTransacEmail(sendEmailSmtp);
-        }
+        sendEmailSmtp.messageVersions = messageVersions;
+        await apiInstance.sendTransacEmail(sendEmailSmtp);
         return {
             success: true,
             message: "All emails have been sent successfully."
