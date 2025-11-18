@@ -115,8 +115,11 @@ exports.cancelBooking = async (req,res) => {
                 slot.currentBooked -= 1;
                 await company.save();
             }
-            const wasSlotFull = slot.currentBooked <= (slot.maxCapacity * 0.9);
-            if (!wasSlotFull){
+            console.log(slot);
+            const haveTosent = slot.currentBooked <= (slot.capacity * 0.9);
+            console.log(haveTosent);
+            
+            if (haveTosent){
                 // Dont use await for make below line do on background
                 handleSlotOpeningNotification(company._id, company.name);
             }

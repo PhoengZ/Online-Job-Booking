@@ -13,7 +13,7 @@ exports.getNameNEmail = async(cid)=>{
     return [true, whoFavoriting]
 }
 
-const sendEmailToAll = async (users, company) => {
+const sendEmailToAll = async (users, company, companyID) => {
     try {
         const ai = new GoogleGenAI({apiKey: process.env.GEMINI_API_KEY})
         const response = await ai.models.generateContent({
@@ -72,8 +72,19 @@ const sendEmailToAll = async (users, company) => {
         });
         let sendEmailSmtp = new brevo.SendSmtpEmail();
         sendEmailSmtp.sender = { "name": "Booking App", "email": process.env.SENDER_EMAIL};
+        sendEmailSmtp.subject = emailContent.Subject.replace("[Company Name]", company);
+        sendEmailSmtp.htmlContent = emailContent.Html.replace("[Company Name]", company).replace("[User's Name]", "User"); 
         sendEmailSmtp.messageVersions = messageVersions;
+        console.log(messageVersions);
         await apiInstance.sendTransacEmail(sendEmailSmtp);
+        const userIds = users.map(u => u._id);
+        await Favorite.updateMany(
+            { 
+                userId: { $in: userIds }, 
+                companyId: companyID
+            },
+            { isSending: true }
+        );
         return {
             success: true,
             message: "All emails have been sent successfully."
@@ -95,7 +106,7 @@ exports.handleSlotOpeningNotification = async(companyId, companyName)=>{
         if (success && favoritingUsers.length > 0) {
             // .populate จะทำให้ favoritingUsers เป็น [{..., userId: {name, email}}, ...]
             const usersToNotify = favoritingUsers.map(fav => fav.userId);
-            await sendEmailToAll(usersToNotify, companyName);
+            await sendEmailToAll(usersToNotify, companyName, companyId);
             console.log(`Successfully sent notifications for ${companyName}.`);
         } else {
             console.log(`No users have favorited ${companyName}. No notifications sent.`);
