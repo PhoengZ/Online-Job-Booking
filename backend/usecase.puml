@@ -1,0 +1,101 @@
+@startuml Online_Job_Booking_UseCase
+!theme plain
+skinparam actorBackgroundColor #FFE6E6
+skinparam usecaseBackgroundColor #E6F2FF
+skinparam usecase {
+    BackgroundColor #E6F2FF
+    BorderColor #0066CC
+    ArrowColor #000000
+}
+skinparam rectangle {
+    BackgroundColor #FFF9E6
+    BorderColor #FF9900
+}
+
+left to right direction
+
+actor User
+actor Admin
+actor "Brevo\n(Email Service)" as Brevo
+actor "Google Gemini\n(AI Service)" as Gemini
+
+package "Authentication System" {
+  usecase "Register\nPOST /auth/register" as UC01
+  usecase "Send OTP\nPOST /auth/sendingOTP" as UC02
+  usecase "Verify OTP\nPUT /auth/verify_otp" as UC03
+  usecase "Login\nPOST /auth/login" as UC04
+  usecase "Logout\nGET /auth/logout" as UC05
+  usecase "Get Profile\nGET /auth/me" as UC06
+}
+
+package "Booking Management" {
+  usecase "View Companies\nGET /companies" as UC07
+  usecase "Create Booking\nPOST /booking" as UC08
+  usecase "View My Bookings\nGET /booking" as UC09
+  usecase "View All Bookings\nGET /booking/:id" as UC10
+  usecase "Edit Booking\nPUT /booking/:id" as UC11
+  usecase "Cancel Booking\nDELETE /booking/:id" as UC12
+}
+
+package "Company Management" {
+  usecase "Add Company\nPOST /companies" as UC13
+  usecase "Delete Company\nDELETE /companies/:id" as UC14
+}
+
+package "Favoriting System" {
+  usecase "Like Company\nPOST /companies/:cid/favoriting" as UC15
+  usecase "Unlike Company\nDELETE /companies/:cid/favoriting/:fid" as UC16
+}
+
+package "Email Service" {
+  usecase "Send Email\nPOST /sendEmail" as UC17
+}
+
+' User flows
+User --> UC01
+User --> UC02
+User --> UC03
+User --> UC04
+User --> UC05
+User --> UC06
+User --> UC07
+User --> UC08
+User --> UC09
+User --> UC11
+User --> UC12
+User --> UC15
+User --> UC16
+
+' Admin flows
+Admin --> UC01
+Admin --> UC02
+Admin --> UC03
+Admin --> UC04
+Admin --> UC05
+Admin --> UC06
+Admin --> UC07
+Admin --> UC08
+Admin --> UC09
+Admin --> UC10
+Admin --> UC11
+Admin --> UC12
+Admin --> UC13
+Admin --> UC14
+Admin --> UC15
+Admin --> UC16
+
+' Include relationships
+UC01 .> UC02 : includes
+UC02 .> UC03 : includes
+UC03 .> UC04 : includes
+
+' Use relationships
+UC08 ..> UC07 : needs
+
+' External Services
+UC02 --> Brevo : calls
+UC17 --> Brevo : calls
+UC12 --> Brevo : triggers
+UC08 ..> Gemini : may use (AI analysis)
+
+@enduml

@@ -1,0 +1,126 @@
+@startuml Online_Job_Booking_ClassDiagram
+!theme plain
+skinparam classBackgroundColor #E6F2FF
+skinparam classBorderColor #0066CC
+skinparam classArrowColor #000000
+skinparam classAttributeIconSize 0
+
+title Online Job Booking System - Class Diagram
+
+class User {
+    - _id: ObjectId
+    - name: String
+    - email: String (unique)
+    - phone: String
+    - password: String (hashed)
+    - role: String (enum: user, admin)
+    - createdAt: Date
+    - otpEmailToken: String
+    - otpEmailExpired: Date
+    - isVerify: Boolean
+    --
+    + matchPassword(password): Promise<Boolean>
+    + getSignedJWTToken(): String
+}
+
+class Company {
+    - _id: ObjectId
+    - name: String (unique)
+    - address: String
+    - website: String
+    - description: String
+    - tel: String
+    - timeslots: Array
+        ..date: Date
+        ..capacity: Number
+        ..currentBooked: Number
+}
+
+class Booking {
+    - _id: ObjectId
+    - userId: ObjectId (ref: User)
+    - companyId: ObjectId (ref: Company)
+    - timeslotDate: Date
+    - status: String (enum: confirmed, cancelled, hold)
+    - createdAt: Date
+}
+
+class Favorite {
+    - _id: ObjectId
+    - userId: ObjectId (ref: User)
+    - companyId: ObjectId (ref: Company)
+    - isSending: Boolean
+}
+
+class AuthController {
+    + register(req, res): void
+    + login(req, res): void
+    + logout(req, res): void
+    + getMe(req, res): void
+    + sendEmailToVerify(req, res): void
+    + verifyEmail(req, res): void
+    - sendTokenResponse(user, statusCode, res): void
+}
+
+class BookingController {
+    + createBooking(req, res): void
+    + cancelBooking(req, res): void
+    + editBooking(req, res): void
+    + getBookings(req, res): void
+    + getBooking(req, res): void
+}
+
+class CompanyController {
+    + getCompanies(req, res): void
+    + addCompany(req, res): void
+    + deleteCompany(req, res): void
+}
+
+class FavoritingController {
+    + likeCompany(req, res): void
+    + unlikeCompany(req, res): void
+}
+
+class AuthMiddleware {
+    + protect(req, res, next): void
+    + authorize(...roles): Function
+}
+
+class BrevoService {
+    + sendTransacEmail(sendSmtpEmail): Promise
+}
+
+class GeminiService {
+    + analyzeContent(): void
+}
+
+' Relationships
+
+' User has many Bookings
+User "1" --> "*" Booking : creates
+
+' User has many Favorites
+User "1" --> "*" Favorite : creates
+
+' Company has many Bookings
+Company "1" --> "*" Booking : has
+
+' Company has many Favorites
+Company "1" --> "*" Favorite : has
+
+' Controllers use Models
+AuthController --|> User : manages
+BookingController --|> Booking : manages
+BookingController --|> Company : uses
+CompanyController --|> Company : manages
+FavoritingController --|> Favorite : manages
+
+' Middleware
+AuthMiddleware --|> User : authenticates
+
+' External Services
+AuthController --|> BrevoService : uses
+BookingController --|> BrevoService : uses
+BookingController --|> GeminiService : uses
+
+@enduml
