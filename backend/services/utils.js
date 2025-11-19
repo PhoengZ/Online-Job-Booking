@@ -75,7 +75,7 @@ const sendEmailToAll = async (users, company, companyID) => {
         sendEmailSmtp.subject = emailContent.Subject.replace("[Company Name]", company);
         sendEmailSmtp.htmlContent = emailContent.Html.replace("[Company Name]", company).replace("[User's Name]", "User"); 
         sendEmailSmtp.messageVersions = messageVersions;
-        console.log(messageVersions);
+        // console.log(messageVersions);
         await apiInstance.sendTransacEmail(sendEmailSmtp);
         const userIds = users.map(u => u._id);
         await Favorite.updateMany(
