@@ -85,7 +85,7 @@ exports.createBooking = async (req,res) => {
 };
 
 //@desc    Cancel Booking
-//@route   PUT /api/v1/booking/:id
+//@route   DELETE /api/v1/booking/:id
 //@access  Public
 exports.cancelBooking = async (req,res) => {
     try{

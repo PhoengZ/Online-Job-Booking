@@ -14,8 +14,8 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Status code is 201\", function () {\r",
-							"    pm.response.to.have.status(201);\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
 							"});\r",
 							"pm.environment.set(\"TOKEN\",pm.response.json().token);\r",
 							"// pm.execution.setNextRequest(\"Create New Company\");"
@@ -382,8 +382,8 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Status code is 201\", function () {\r",
-							"    pm.response.to.have.status(201);\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
 							"});\r",
 							"\r",
 							"pm.environment.set(\"TOKEN\", pm.response.json().token);\r",
@@ -1109,8 +1109,8 @@
 						"exec": [
 							"pm.environment.set(\"TOKEN\",pm.response.json().token)\r",
 							"\r",
-							"pm.test(\"Status code is 201\", function () {\r",
-							"    pm.response.to.have.status(201);\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
 							"});\r",
 							"\r",
 							"// pm.execution.setNextRequest(\"View All Booking\");"
