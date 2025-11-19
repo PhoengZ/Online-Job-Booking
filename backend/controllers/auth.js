@@ -20,7 +20,7 @@ exports.register = async (req,res,next) => {
         const user = await User.create({name,email,phone,password,role});
         //Create Token and sent to cookie by call function
         //sendTokenResponse(user,200,res);
-        return res.status(200).json({
+        return res.status(201).json({
             success: true,
             data: user
         })
@@ -53,12 +53,12 @@ exports.login = async (req,res,next) => {
     }
 
     //Create Token and sent to cookie by call function
-    sendTokenResponse(user,200,res);
+    sendTokenResponse(user,201,res);
 };
 
 
 //@desc    Logout User
-//@route   POST /api/v1/auth/logout
+//@route   GET /api/v1/auth/logout
 //@access  Public
 exports.logout = async (req,res,next) => {
     res.cookie('token', 'none', {
