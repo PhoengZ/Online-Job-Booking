@@ -1,3 +1,4 @@
+const { response } = require('express');
 const User = require('../models/User');
 const brevo = require("@getbrevo/brevo")
 //@desc    Register User
@@ -19,7 +20,7 @@ exports.register = async (req,res,next) => {
         const user = await User.create({name,email,phone,password,role});
         //Create Token and sent to cookie by call function
         //sendTokenResponse(user,200,res);
-        return res.status(200).json({
+        return res.status(201).json({
             success: true,
             data: user
         })
@@ -57,7 +58,7 @@ exports.login = async (req,res,next) => {
 
 
 //@desc    Logout User
-//@route   POST /api/v1/auth/logout
+//@route   GET /api/v1/auth/logout
 //@access  Public
 exports.logout = async (req,res,next) => {
     res.cookie('token', 'none', {
@@ -89,7 +90,7 @@ const sendTokenResponse = (user , statusCode , res) => {
 
 
 //@desc    Get current Logged in user
-//@route   POST /api/v1/auth/me
+//@route   GET /api/v1/auth/me
 //@access  Private
 exports.getMe = async (req,res,next) =>{
     const user = await User.findById(req.user.id);
@@ -112,14 +113,19 @@ exports.sendEmailToVerify = async (req, res, next) => {
         user.otpEmailToken = otp;
         user.otpEmailExpired = Date.now() + 10 * 60 * 1000; 
         await user.save();
-
+        if (!process.env.BREVO_API_KEY){
+            throw new Error('BREVO_API_KEY environment variable is not configured');
+        }
+        if (!process.env.SENDER_EMAIL){
+            throw new Error('SENDER_EMAIL environment variable is not configured');
+        }            
         let apiInstance = new brevo.TransactionalEmailsApi();
         let apiKey = apiInstance.authentications['apiKey'];
         apiKey.apiKey = process.env.BREVO_API_KEY;
         let sendSmtpEmail = new brevo.SendSmtpEmail();
         sendSmtpEmail.subject = `ยืนยันอีเมล ${email} OTP ของคุณ`;
         sendSmtpEmail.htmlContent = `OTP ของคุณคือ <strong>${otp}</strong>`;
-        sendSmtpEmail.sender = { "name": "Booking App", "email": "6630199021@student.chula.ac.th" }; // ต้องเป็นเมลที่ Verify ใน Brevo แล้ว
+        sendSmtpEmail.sender = { "name": "Booking App", "email": process.env.SENDER_EMAIL }; // ต้องเป็นเมลที่ Verify ใน Brevo แล้ว
         sendSmtpEmail.to = [{ "email": email }];
         await apiInstance.sendTransacEmail(sendSmtpEmail);
         console.log("successfull sending with Brevo");

@@ -22,12 +22,12 @@ exports.likeCompany = async(req,res,next) => {
         
         // company.liked.push(userId);
         // await company.save();
-        await Favorite.create({
+        const favorite = await Favorite.create({
             userId: userId,
             companyId: cid,
             isSending: false
         })
-        res.status(200).json({success:true,message:`Liked ${company.name} successfully`})
+        res.status(200).json({success:true,message:`Liked ${company.name} successfully`,data:favorite})
     }catch(error){
         res.status(500).json({success : false});
     }
