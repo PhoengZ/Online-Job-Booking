@@ -29,7 +29,6 @@ package "Authentication System" {
 }
 
 package "Booking Management" {
-  usecase "View Companies\nGET /companies" as UC07
   usecase "Create Booking\nPOST /booking" as UC08
   usecase "View My Bookings\nGET /booking" as UC09
   usecase "View All Bookings\nGET /booking/:id" as UC10
@@ -38,6 +37,7 @@ package "Booking Management" {
 }
 
 package "Company Management" {
+  usecase "View Companies\nGET /companies" as UC07
   usecase "Add Company\nPOST /companies" as UC13
   usecase "Delete Company\nDELETE /companies/:id" as UC14
 }

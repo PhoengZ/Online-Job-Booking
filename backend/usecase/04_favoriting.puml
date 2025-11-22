@@ -1,0 +1,29 @@
+@startuml Favoriting_System
+!theme plain
+skinparam actorBackgroundColor #FFE6E6
+skinparam usecaseBackgroundColor #E6F2FF
+skinparam usecase {
+    BackgroundColor #E6F2FF
+    BorderColor #0066CC
+    ArrowColor #000000
+}
+
+left to right direction
+
+actor User
+actor Admin
+
+package "Favoriting System" {
+  usecase "Like Company\nPOST /companies/:cid/favoriting" as UC15
+  usecase "Unlike Company\nDELETE /companies/:cid/favoriting/:fid" as UC16
+}
+
+' User flows
+User --> UC15
+User --> UC16
+
+' Admin flows
+Admin --> UC15
+Admin --> UC16
+
+@enduml
