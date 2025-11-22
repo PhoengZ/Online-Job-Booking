@@ -1,0 +1,41 @@
+@startuml Authentication_System
+!theme plain
+skinparam actorBackgroundColor #FFE6E6
+skinparam usecaseBackgroundColor #E6F2FF
+skinparam usecase {
+    BackgroundColor #E6F2FF
+    BorderColor #0066CC
+    ArrowColor #000000
+}
+
+left to right direction
+
+actor User
+actor "Brevo\n(Email Service)" as Brevo
+
+package "Authentication System" {
+  usecase "Register\nPOST /auth/register" as UC01
+  usecase "Send OTP\nPOST /auth/sendingOTP" as UC02
+  usecase "Verify OTP\nPUT /auth/verify_otp" as UC03
+  usecase "Login\nPOST /auth/login" as UC04
+  usecase "Logout\nGET /auth/logout" as UC05
+  usecase "Get Profile\nGET /auth/me" as UC06
+}
+
+' User flows
+User --> UC01
+User --> UC02
+User --> UC03
+User --> UC04
+User --> UC05
+User --> UC06
+
+' Include relationships
+UC01 .> UC02 : includes
+UC02 .> UC03 : includes
+UC03 .> UC04 : includes
+
+' External Services
+UC02 --> Brevo : calls
+
+@enduml

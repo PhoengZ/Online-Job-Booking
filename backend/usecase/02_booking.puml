@@ -1,0 +1,52 @@
+@startuml Booking_System
+!theme plain
+skinparam actorBackgroundColor #FFE6E6
+skinparam usecaseBackgroundColor #E6F2FF
+skinparam usecase {
+    BackgroundColor #E6F2FF
+    BorderColor #0066CC
+    ArrowColor #000000
+}
+
+left to right direction
+
+actor User
+actor Admin
+actor "Brevo\n(Email Service)" as Brevo
+actor "Google Gemini\n(AI Service)" as Gemini
+
+package "Company Management" {
+  usecase "View Companies\nGET /companies" as UC07
+}
+
+package "Booking Management" {
+  usecase "Create Booking\nPOST /booking" as UC08
+  usecase "View My Bookings\nGET /booking" as UC09
+  usecase "View All Bookings\nGET /booking/:id" as UC10
+  usecase "Edit Booking\nPUT /booking/:id" as UC11
+  usecase "Cancel Booking\nDELETE /booking/:id" as UC12
+}
+
+' User flows
+User --> UC07
+User --> UC08
+User --> UC09
+User --> UC11
+User --> UC12
+
+' Admin flows
+Admin --> UC07
+Admin --> UC08
+Admin --> UC09
+Admin --> UC10
+Admin --> UC11
+Admin --> UC12
+
+' Use relationships
+UC08 ..> UC07 : needs
+
+' External Services
+UC12 --> Brevo : triggers (slot available)
+UC12 ..> Gemini : uses (generate email content)
+
+@enduml
