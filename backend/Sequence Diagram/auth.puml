@@ -1,0 +1,68 @@
+@startuml AuthRoutes
+
+title AUTH ROUTES
+
+' ========== LOGIN ==========
+Client -> Server ++ : POST /api/v1/auth/login
+Server -> authRouter ++ : router.post('/login', login)
+authRouter -> authController ++ : login(req,res)
+
+authController -> userModel ++ : findOne({ email })
+userModel -> usersDB ++ : UserSchema
+usersDB --> userModel -- : userData
+
+authController -> authController : comparePassword()
+authController -> authController : generateToken()
+
+authController --> Client -- : { token, user }
+
+' ========== GET ME ==========
+Client -> Server ++ : GET /api/v1/auth/me
+Server -> authRouter ++ : router.get('/me', protect, getMe)
+
+authRouter -> protect ++ : verify JWT
+protect -> userModel ++ : findById(decoded.id)
+userModel -> usersDB ++ : query user by id
+usersDB --> userModel -- : userData
+userModel --> protect -- : user
+protect --> authRouter -- : req.user
+
+authRouter -> authController ++ : getMe(req,res)
+authController --> Client -- : userData
+
+' ========== REGISTER ==========
+Client -> Server ++ : POST /api/v1/auth/register
+Server -> authRouter ++ : router.post('/register', register)
+authRouter -> authController ++ : register(req,res)
+
+authController -> userModel ++ : create(req.body)
+userModel -> usersDB ++ : insert user
+usersDB --> userModel -- : newUser
+
+authController -> authController : generateToken()
+authController --> Client -- : { token, newUser }
+
+' ========== SEND OTP ==========
+Client -> Server ++ : POST /api/v1/auth/sendingOTP
+Server -> authRouter ++ : router.post('/sendingOTP', sendEmailToVerify)
+authRouter -> authController ++ : sendEmailToVerify(req,res)
+
+authController -> otpService ++ : generateOTP()
+otpService --> authController -- : otp
+
+authController -> emailService ++ : send(email, otp)
+emailService --> authController -- : sent
+
+authController --> Client -- : OTP sent
+
+' ========== VERIFY OTP ==========
+Client -> Server ++ : PUT /api/v1/auth/verify_otp
+Server -> authRouter ++ : router.put('/verify_otp', verifyEmail)
+authRouter -> authController ++ : verifyEmail(req,res)
+
+authController -> otpService ++ : validateOTP(email, otp)
+otpService --> authController -- : valid/invalid
+
+authController --> Client -- : verification result
+
+@enduml

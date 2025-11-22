@@ -1,0 +1,53 @@
+@startuml CompanyRoutes
+title COMPANY ROUTES
+
+' ========== GET COMPANIES ==========
+Client -> Server ++ : GET /api/v1/company
+Server -> companyRouter ++ : router.get('/', protect, authorize, getCompanies)
+
+companyRouter -> protect ++ : verify JWT
+protect --> companyRouter -- : req.user
+
+companyRouter -> authorize ++ : user/admin
+authorize --> companyRouter -- : OK
+
+companyRouter -> companyController ++ : getCompanies
+companyController -> companyModel ++ : find all
+companyModel -> companyDB ++ : query companies
+companyDB --> companyModel -- : companyList
+companyController --> Client -- : companyList
+
+' ========== ADD COMPANY ==========
+Client -> Server ++ : POST /api/v1/company
+Server -> companyRouter ++ : router.post('/', protect, authorize, addCompany)
+
+companyRouter -> protect ++
+protect --> companyRouter -- : req.user
+
+companyRouter -> authorize ++ : admin only
+authorize --> companyRouter -- : OK
+
+companyRouter -> companyController ++ : addCompany(req,res)
+companyController -> companyModel ++ : create()
+companyModel -> companyDB ++ : insert
+companyDB --> companyModel -- : newCompany
+companyController --> Client -- : newCompany
+
+' ========== DELETE COMPANY ==========
+Client -> Server ++ : DELETE /api/v1/company/:id
+Server -> companyRouter ++ : router.delete('/:id', protect, authorize, deleteCompany)
+
+companyRouter -> protect ++
+protect --> companyRouter -- : req.user
+
+companyRouter -> authorize ++ : admin
+authorize --> companyRouter -- : OK
+
+companyRouter -> companyController ++ : deleteCompany
+companyController -> companyModel ++ : findByIdAndDelete
+companyModel -> companyDB ++ : delete
+companyDB --> companyModel -- : success
+
+companyController --> Client -- : deleted
+
+@enduml

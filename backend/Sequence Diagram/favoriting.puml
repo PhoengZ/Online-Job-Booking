@@ -1,0 +1,38 @@
+@startuml FavoritingRoutes
+title FAVORITING ROUTES
+
+' ========== LIKE COMPANY ==========
+Client -> Server ++ : POST /api/v1/company/:cid/favoriting
+Server -> favoritingRouter ++ : router.post('/', protect, authorize, likeCompany)
+
+favoritingRouter -> protect ++
+protect --> favoritingRouter -- : req.user
+
+favoritingRouter -> authorize ++ : admin,user
+authorize --> favoritingRouter -- : OK
+
+favoritingRouter -> favoritingController ++ : likeCompany
+favoritingController -> favoriteModel ++ : create favorite
+favoriteModel -> favDB ++ : insert
+favDB --> favoriteModel -- : success
+
+favoritingController --> Client -- : liked
+
+' ========== UNLIKE COMPANY ==========
+Client -> Server ++ : DELETE /api/v1/company/:cid/favoriting/:fid
+Server -> favoritingRouter ++ : router.delete('/:fid', protect, authorize, unlikeCompany)
+
+favoritingRouter -> protect ++
+protect --> favoritingRouter -- : req.user
+
+favoritingRouter -> authorize ++
+authorize --> favoritingRouter -- : OK
+
+favoritingRouter -> favoritingController ++ : unlikeCompany
+favoritingController -> favoriteModel ++ : delete
+favoriteModel -> favDB ++ : remove
+favDB --> favoriteModel -- : success
+
+favoritingController --> Client -- : unliked
+
+@enduml

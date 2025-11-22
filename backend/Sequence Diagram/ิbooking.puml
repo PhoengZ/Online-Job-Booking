@@ -1,0 +1,88 @@
+@startuml BookingRoutes
+title BOOKING ROUTES
+
+' ========== GET BOOKINGS ==========
+Client -> Server ++ : GET /api/v1/booking
+Server -> bookingRouter ++ : router.get('/', protect, authorize, getBookings)
+
+bookingRouter -> protect ++ : verify JWT
+protect --> bookingRouter -- : req.user
+
+bookingRouter -> authorize ++ : check roles (user/admin)
+authorize --> bookingRouter -- : OK
+
+bookingRouter -> bookingController ++ : getBookings(req,res)
+bookingController -> bookingModel ++ : find bookings
+bookingModel -> bookingsDB ++ : query bookings
+bookingsDB --> bookingModel -- : bookingList
+bookingController --> Client -- : bookingList
+
+' ========== CREATE BOOKING ==========
+Client -> Server ++ : POST /api/v1/booking
+Server -> bookingRouter ++ : router.post('/', protect, authorize, createBooking)
+
+bookingRouter -> protect ++ : verify JWT
+protect --> bookingRouter -- : req.user
+
+bookingRouter -> authorize ++ : check role user
+authorize --> bookingRouter -- : OK
+
+bookingRouter -> bookingController ++ : createBooking(req,res)
+bookingController -> bookingModel ++ : insert booking
+bookingModel -> bookingsDB ++ : save
+bookingsDB --> bookingModel -- : createdBooking
+
+bookingController --> Client -- : createdBooking
+
+' ========== GET BOOKING BY ID ==========
+Client -> Server ++ : GET /api/v1/booking/:id
+Server -> bookingRouter ++ : router.get('/:id', protect, authorize, getBooking)
+
+bookingRouter -> protect ++
+protect --> bookingRouter -- : req.user
+
+bookingRouter -> authorize ++ : admin only
+authorize --> bookingRouter -- : OK
+
+bookingRouter -> bookingController ++ : getBooking(req,res)
+bookingController -> bookingModel ++ : findById(id)
+bookingModel -> bookingsDB ++ : get booking
+bookingsDB --> bookingModel -- : booking
+
+bookingController --> Client -- : booking
+
+' ========== EDIT BOOKING ==========
+Client -> Server ++ : PUT /api/v1/booking/:id
+Server -> bookingRouter ++ : router.put('/:id', protect, authorize, editBooking)
+
+bookingRouter -> protect ++
+protect --> bookingRouter -- : req.user
+
+bookingRouter -> authorize ++ : user,admin
+authorize --> bookingRouter -- : OK
+
+bookingRouter -> bookingController ++ : editBooking(req,res)
+bookingController -> bookingModel ++ : update booking
+bookingModel -> bookingsDB ++ : update
+bookingsDB --> bookingModel -- : updated
+
+bookingController --> Client -- : updatedBooking
+
+' ========== DELETE BOOKING ==========
+Client -> Server ++ : DELETE /api/v1/booking/:id
+Server -> bookingRouter ++ : router.delete('/:id', protect, authorize, cancelBooking)
+
+bookingRouter -> protect ++
+protect --> bookingRouter -- : req.user
+
+bookingRouter -> authorize ++
+authorize --> bookingRouter -- : OK
+
+bookingRouter -> bookingController ++ : cancelBooking(req,res)
+bookingController -> bookingModel ++ : delete/update status
+bookingModel -> bookingsDB ++ : delete/update
+bookingsDB --> bookingModel -- : success
+
+bookingController --> Client -- : cancelled
+
+@enduml

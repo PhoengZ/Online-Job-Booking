@@ -1,0 +1,14 @@
+@startuml EmailRoutes
+title EMAIL ROUTES
+
+Client -> Server ++ : POST /api/v1/email/sendEmail
+Server -> emailRouter ++ : router.post('/sendEmail', sendEmail)
+
+emailRouter -> emailController ++ : sendEmail(req,res)
+emailController -> emailService ++ : sendEmail(data)
+emailService -> smtpServer ++ : send
+smtpServer --> emailService -- : OK
+
+emailController --> Client -- : email sent
+
+@enduml
